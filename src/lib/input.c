@@ -2,13 +2,6 @@
 #include <atheneum/atheneum.h>
 #include <stik/stik.h>
 
-
-
-
-
-
-
-
 static int stikInitFunctions(StikFunctions* self, Atheneum* atheneum)
 {
     self->createInputInstanceV006 = (SteamAPI_SteamInput_v006) atheneumAddress(atheneum, "SteamAPI_SteamInput_v006");;
@@ -39,11 +32,11 @@ int stikInit(Stik* self, Atheneum *atheneum)
 
     CLOG_INFO("stik create %p", self->input);
 
-    SteamBool initWorked = self->functions.init(self->input);
+    SteamBool initWorked = self->functions.init(self->input, 1);
     if (!initWorked) {
         return -6;
     }
-//    self->functions.runFrame(self->input);
+    //self->functions.runFrame(self->input);
 
     CLOG_INFO("stik init %d", initWorked);
 
@@ -55,45 +48,73 @@ int stikGetConnectedControllers(Stik* self, InputHandle_t* handles)
     return self->functions.getConnectedControllers(self->input, handles);
 }
 
-/*
- *
 
-self->functions.runFrame(self->input);
-CLOG_INFO("stik runhandle");
-
-InputHandle_t controllerHandles[STEAM_INPUT_MAX_COUNT];
-SteamInt controllerCount = self->functions.getConnectedControllers(self->input, controllerHandles);
-
-if (controllerCount <= 0) {
-return -3;
+InputActionSetHandle_t stikGetActionSetHandle(Stik* self, const char* actionSetName)
+{
+    return self->functions.getActionSetHandle(self->input, actionSetName);
 }
 
-InputHandle_t controllerHandle = controllerHandles[0];
-CLOG_INFO("stik controllerHandle %08X", controllerHandle);
-
-self->functions.runFrame(self->input);
-CLOG_INFO("stik runhandle2");
-
-self->functions.activateActionSet(self->input, controllerHandle, setHandle);
-
-self->functions.runFrame(self->input);
-CLOG_INFO("stik runhandle2");
-
-
-
-
-EInputActionOrigin origins[MAX_ORIGINS];
-SteamInt numberOfOrigins = self->functions.getDigitalActionOrigins(self->input, controllerHandle, setHandle, abilityOneHandle, origins);
-CLOG_INFO("stik numberOfOrigins %d", numberOfOrigins);
-
-self->functions.runFrame(self->input);
-
-InputDigitalActionData_t data = self->functions.getDigitalActionData(self->input, controllerHandle, abilityOneHandle);
-
-CLOG_INFO("stik digital action %d %d", data.state, data.active);
-if (!data.active) {
-return -904;
+InputDigitalActionHandle_t stikGetDigitalActionHandle(Stik* self, const char* digitalActionName)
+{
+    return self->functions.getDigitalActionHandle(self->input, digitalActionName);
 }
 
+int stikActivateActionSet(Stik* self, InputHandle_t inputHandle, InputActionSetHandle_t actionSetHandle)
+{
+    self->functions.activateActionSet(self->input, inputHandle, actionSetHandle);
+    self->functions.runFrame(self->input);
+    InputActionSetHandle_t detectedActionSet = self->functions.getCurrentActionSet(self->input, inputHandle);
+    if (detectedActionSet != actionSetHandle) {
+        CLOG_SOFT_ERROR("could not set action set %d (%d)", actionSetHandle, detectedActionSet)
+        return -1;
+    }
+    return 0;
+}
 
- */
+int stikUpdate(Stik* self)
+{
+    self->functions.runFrame(self->input);
+
+    return 0;
+}
+
+InputDigitalActionData_t stikGetDigitalActionData(Stik* self, InputHandle_t controllerHandle, InputDigitalActionHandle_t digitalActionHandle)
+{
+    return self->functions.getDigitalActionData(self->input, controllerHandle, digitalActionHandle);
+}
+
+ESteamInputType stikGetInputTypeForHandle(Stik* self, InputHandle_t inputHandle)
+{
+    return self->functions.getInputTypeForHandle(self->input, inputHandle);
+}
+
+const char* stikGetInputTypeName(ESteamInputType controllerType)
+{
+    static const const char* values[] = {
+        "Unknown",
+        "Steam Controller",
+        "Xbox 360 Controller",
+        "Xbox One Controller",
+        "Generic XInput",
+        "PS4 Controller",
+        "Apple MFi Controller",
+        "Android Controller",
+        "SwithJoyConPAir",
+        "SwitchJoyConSingle",
+        "SwitchProController",
+        "MobileTouch",
+        "Ps3 controller",
+        "Unknown2",
+        "Steam Deck"};
+
+    if (controllerType > 0 && controllerType < k_ESteamInputType_Count) {
+        return values[controllerType];
+    }
+
+    return "Controller Unknown. Outside of values";
+}
+
+int stikGetDigitalActionOrigins(Stik* self, InputHandle_t inputHandle, InputActionSetHandle_t actionSetHandle, InputDigitalActionHandle_t digitalActionHandle, EInputActionOrigin *originsOut)
+{
+    return self->functions.getDigitalActionOrigins(self->input, inputHandle, actionSetHandle, digitalActionHandle, originsOut);
+}

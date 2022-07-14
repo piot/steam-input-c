@@ -9,12 +9,12 @@ typedef SteamU64 InputDigitalActionHandle_t;
 
 typedef struct InputDigitalActionData_t
 {
-//#pragma pack(push, 0)
-    //SteamBool state;
-    //SteamBool active;
-//#pragma pack(pop)
-uint64_t data1;
-uint64_t data2;
+#pragma pack(push, 0)
+    uint8_t state;
+    uint8_t active;
+#pragma pack(pop)
+//uint64_t data1;
+//uint64_t data2;
 } InputDigitalActionData_t;
 
 typedef SteamInt EInputActionOrigin;

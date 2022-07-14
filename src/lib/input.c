@@ -17,6 +17,13 @@ static int stikInitFunctions(StikFunctions* self, Atheneum* atheneum)
     self->getInputTypeForHandle = (SteamAPI_ISteamInput_GetInputTypeForHandle)atheneumAddress(atheneum, "SteamAPI_ISteamInput_GetInputTypeForHandle");
     self->getControllerForGamepadIndex =  (SteamAPI_ISteamInput_GetControllerForGamepadIndex)atheneumAddress(atheneum, "SteamAPI_ISteamInput_GetControllerForGamepadIndex");
 
+
+
+    self->getAnalogActionHandle  = (SteamAPI_ISteamInput_GetAnalogActionHandle) atheneumAddress(atheneum, "SteamAPI_ISteamInput_GetAnalogActionHandle");
+    self->getAnalogActionOrigins  = (SteamAPI_ISteamInput_GetAnalogActionOrigins) atheneumAddress(atheneum, "SteamAPI_ISteamInput_GetAnalogActionOrigins");
+    self->getAnalogActionData = (SteamAPI_ISteamInput_GetAnalogActionData) atheneumAddress(atheneum, "SteamAPI_ISteamInput_GetAnalogActionData");
+
+
     return 0;
 }
 
@@ -59,6 +66,11 @@ InputDigitalActionHandle_t stikGetDigitalActionHandle(Stik* self, const char* di
     return self->functions.getDigitalActionHandle(self->input, digitalActionName);
 }
 
+InputAnalogActionHandle_t stikGetAnalogActionHandle(Stik* self, const char* analogActionName)
+{
+    return self->functions.getAnalogActionHandle(self->input, analogActionName);
+}
+
 int stikActivateActionSet(Stik* self, InputHandle_t inputHandle, InputActionSetHandle_t actionSetHandle)
 {
     self->functions.activateActionSet(self->input, inputHandle, actionSetHandle);
@@ -81,6 +93,11 @@ int stikUpdate(Stik* self)
 InputDigitalActionData_t stikGetDigitalActionData(Stik* self, InputHandle_t controllerHandle, InputDigitalActionHandle_t digitalActionHandle)
 {
     return self->functions.getDigitalActionData(self->input, controllerHandle, digitalActionHandle);
+}
+
+InputAnalogActionData_t stikGetAnalogActionData(Stik* self, InputHandle_t controllerHandle, InputAnalogActionHandle_t analogActionHandle)
+{
+    return self->functions.getAnalogActionData(self->input, controllerHandle, analogActionHandle);
 }
 
 ESteamInputType stikGetInputTypeForHandle(Stik* self, InputHandle_t inputHandle)
@@ -117,4 +134,11 @@ const char* stikGetInputTypeName(ESteamInputType controllerType)
 int stikGetDigitalActionOrigins(Stik* self, InputHandle_t inputHandle, InputActionSetHandle_t actionSetHandle, InputDigitalActionHandle_t digitalActionHandle, EInputActionOrigin *originsOut)
 {
     return self->functions.getDigitalActionOrigins(self->input, inputHandle, actionSetHandle, digitalActionHandle, originsOut);
+}
+
+
+
+int stikGetAnalogActionOrigins(Stik* self, InputHandle_t inputHandle, InputActionSetHandle_t actionSetHandle, InputAnalogActionHandle_t analogActionHandle, EInputActionOrigin *originsOut)
+{
+    return self->functions.getAnalogActionOrigins(self->input, inputHandle, actionSetHandle, analogActionHandle, originsOut);
 }

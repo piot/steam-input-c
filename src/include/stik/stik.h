@@ -2,20 +2,34 @@
 #define STIK_H
 
 #include <steam-api/steam_api.h>
+#include <stdbool.h>
 
 typedef SteamU64 InputHandle_t;
 typedef SteamU64 InputActionSetHandle_t;
 typedef SteamU64 InputDigitalActionHandle_t;
+typedef SteamU64 InputAnalogActionHandle_t;
 
 typedef struct InputDigitalActionData_t
 {
-#pragma pack(push, 0)
-    uint8_t state;
-    uint8_t active;
-#pragma pack(pop)
+//#pragma pack(push, 0)
+    bool state;
+    bool active;
+//#pragma pack(pop)
 //uint64_t data1;
 //uint64_t data2;
 } InputDigitalActionData_t;
+
+typedef enum EControllerSourceMode {
+    k_EInputSourceMode_Dpad = 1,
+} EControllerSourceMode;
+
+
+typedef struct InputAnalogActionData_t {
+    EControllerSourceMode sourceMode;
+    float x;
+    float y;
+    bool active;
+} InputAnalogActionData_t;
 
 
 typedef enum ESteamInputTypeEnum {
@@ -46,15 +60,23 @@ typedef void* ISteamInput;
 typedef ISteamInput* (S_CALLTYPE *SteamAPI_SteamInput_v006)(void);
 typedef SteamBool (S_CALLTYPE *SteamAPI_ISteamInput_Init)(ISteamInput* input, bool explicitlyCallFrame); // bool explicitlyCallFrame is unknown if it exists as a parameter.
 typedef InputActionSetHandle_t (S_CALLTYPE *SteamAPI_ISteamInput_GetActionSetHandle)(ISteamInput* input, SteamConstantString actionSet);
-typedef InputDigitalActionHandle_t (S_CALLTYPE *SteamAPI_ISteamInput_GetDigitalActionHandle)(ISteamInput* input, SteamConstantString digitalAction);
 typedef InputHandle_t (S_CALLTYPE *SteamAPI_ISteamInput_GetControllerForGamepadIndex)(ISteamInput* input, SteamInt controllerIndex);
 typedef void (S_CALLTYPE *SteamAPI_ISteamInput_ActivateActionSet)(ISteamInput* input, InputHandle_t inputHandle, InputActionSetHandle_t actionSetHandle);
 typedef SteamInt (S_CALLTYPE *SteamAPI_ISteamInput_GetConnectedControllers)(ISteamInput* input, InputHandle_t *handlesOut);
 typedef void (S_CALLTYPE *SteamAPI_ISteamInput_RunFrame)(ISteamInput* input);
-typedef SteamInt (S_CALLTYPE *SteamAPI_ISteamInput_GetDigitalActionOrigins)(ISteamInput* input, InputHandle_t inputHandle, InputActionSetHandle_t actionSetHandle, InputDigitalActionHandle_t digitalActionHandle, EInputActionOrigin *originsOut);
-typedef InputDigitalActionData_t (S_CALLTYPE *SteamAPI_ISteamInput_GetDigitalActionData)(ISteamInput* input, InputHandle_t controllerHandle, InputDigitalActionHandle_t digitalActionHandle);
 typedef InputActionSetHandle_t (S_CALLTYPE *SteamAPI_ISteamInput_GetCurrentActionSet)(ISteamInput* input, InputHandle_t controllerHandle);
 typedef ESteamInputType (S_CALLTYPE *SteamAPI_ISteamInput_GetInputTypeForHandle)(ISteamInput* input,  InputHandle_t inputHandle);
+
+typedef InputDigitalActionHandle_t (S_CALLTYPE *SteamAPI_ISteamInput_GetDigitalActionHandle)(ISteamInput* input, SteamConstantString digitalAction);
+typedef SteamInt (S_CALLTYPE *SteamAPI_ISteamInput_GetDigitalActionOrigins)(ISteamInput* input, InputHandle_t inputHandle, InputActionSetHandle_t actionSetHandle, InputDigitalActionHandle_t digitalActionHandle, EInputActionOrigin *originsOut);
+typedef InputDigitalActionData_t (S_CALLTYPE *SteamAPI_ISteamInput_GetDigitalActionData)(ISteamInput* input, InputHandle_t controllerHandle, InputDigitalActionHandle_t digitalActionHandle);
+
+
+typedef InputAnalogActionHandle_t (S_CALLTYPE *SteamAPI_ISteamInput_GetAnalogActionHandle)(ISteamInput* input, SteamConstantString digitalAction);
+typedef SteamInt (S_CALLTYPE *SteamAPI_ISteamInput_GetAnalogActionOrigins)(ISteamInput* input, InputHandle_t inputHandle, InputActionSetHandle_t actionSetHandle, InputAnalogActionHandle_t analogActionHandle, EInputActionOrigin *originsOut);
+typedef InputAnalogActionData_t (S_CALLTYPE *SteamAPI_ISteamInput_GetAnalogActionData)(ISteamInput* input, InputHandle_t controllerHandle, InputAnalogActionHandle_t analogActionHandle);
+
+
 
 #define STIK_INPUT_MAX_COUNT (16)
 #define STIK_MAX_ORIGINS (8)
@@ -75,6 +97,10 @@ typedef struct StikFunctions {
     SteamAPI_ISteamInput_GetCurrentActionSet getCurrentActionSet;
     SteamAPI_ISteamInput_GetInputTypeForHandle getInputTypeForHandle;
     SteamAPI_ISteamInput_GetControllerForGamepadIndex getControllerForGamepadIndex;
+
+    SteamAPI_ISteamInput_GetAnalogActionHandle getAnalogActionHandle;
+    SteamAPI_ISteamInput_GetAnalogActionOrigins getAnalogActionOrigins;
+    SteamAPI_ISteamInput_GetAnalogActionData getAnalogActionData;
 } StikFunctions;
 
 typedef struct Stik {
@@ -92,5 +118,9 @@ InputDigitalActionData_t stikGetDigitalActionData(Stik* input, InputHandle_t con
 ESteamInputType stikGetInputTypeForHandle(Stik* self, InputHandle_t inputHandle);
 int stikGetDigitalActionOrigins(Stik* self, InputHandle_t inputHandle, InputActionSetHandle_t actionSetHandle, InputDigitalActionHandle_t digitalActionHandle, EInputActionOrigin *originsOut);
 const char* stikGetInputTypeName(ESteamInputType controllerType);
+
+InputAnalogActionData_t stikGetAnalogActionData(Stik* self, InputHandle_t controllerHandle, InputAnalogActionHandle_t analogActionHandle);
+int stikGetAnalogActionOrigins(Stik* self, InputHandle_t inputHandle, InputActionSetHandle_t actionSetHandle, InputAnalogActionHandle_t analogActionHandle, EInputActionOrigin *originsOut);
+InputAnalogActionHandle_t stikGetAnalogActionHandle(Stik* self, const char* analogActionName);
 
 #endif

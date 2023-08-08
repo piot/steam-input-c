@@ -1,6 +1,7 @@
 #include "clog/clog.h"
 #include <atheneum/atheneum.h>
 #include <stik/stik.h>
+#include <inttypes.h>
 
 static int stikInitFunctions(StikFunctions* self, Atheneum* atheneum)
 {
@@ -77,7 +78,7 @@ int stikActivateActionSet(Stik* self, InputHandle_t inputHandle, InputActionSetH
     self->functions.runFrame(self->input);
     InputActionSetHandle_t detectedActionSet = self->functions.getCurrentActionSet(self->input, inputHandle);
     if (detectedActionSet != actionSetHandle) {
-        CLOG_SOFT_ERROR("could not set action set %d (%d)", actionSetHandle, detectedActionSet)
+        CLOG_SOFT_ERROR("could not set action set %" PRIX64 " (%" PRIX64 ")", actionSetHandle, detectedActionSet)
         return -1;
     }
     return 0;
@@ -107,7 +108,7 @@ ESteamInputType stikGetInputTypeForHandle(Stik* self, InputHandle_t inputHandle)
 
 const char* stikGetInputTypeName(ESteamInputType controllerType)
 {
-    static const const char* values[] = {
+    static const char* values[] = {
         "Unknown",
         "Steam Controller",
         "Xbox 360 Controller",

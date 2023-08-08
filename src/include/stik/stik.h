@@ -49,7 +49,7 @@ typedef enum ESteamInputTypeEnum {
     k_ESteamInputType_unknown2	= 13, //
     k_ESteamInputType_SteamDeck	= 14, //
     k_ESteamInputType_Count	= 15, //13	Current number of values returned
-};
+} ESteamInputTypeEnum;
 
 typedef SteamInt EInputActionOrigin;
 typedef SteamInt ESteamInputType;

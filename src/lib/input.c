@@ -5,7 +5,7 @@
 
 static int stikInitFunctions(StikFunctions* self, Atheneum* atheneum)
 {
-    self->createInputInstanceV006 = (SteamAPI_SteamInput_v006) atheneumAddress(atheneum, "SteamAPI_SteamInput_v006");;
+    self->createInputInstanceV006 = (SteamAPI_SteamInput_v006) atheneumAddress(atheneum, "SteamAPI_SteamInput_v006");
     self->init  = (SteamAPI_ISteamInput_Init) atheneumAddress(atheneum, "SteamAPI_ISteamInput_Init");
     self->getActionSetHandle = (SteamAPI_ISteamInput_GetActionSetHandle) atheneumAddress(atheneum, "SteamAPI_ISteamInput_GetActionSetHandle");
     self->getDigitalActionHandle  = (SteamAPI_ISteamInput_GetDigitalActionHandle) atheneumAddress(atheneum, "SteamAPI_ISteamInput_GetDigitalActionHandle");
@@ -38,7 +38,7 @@ int stikInit(Stik* self, Atheneum *atheneum)
 
     self->input = self->functions.createInputInstanceV006();
 
-    CLOG_INFO("stik create %p", self->input);
+    CLOG_INFO("stik create %p", (void*) self->input)
 
     SteamBool initWorked = self->functions.init(self->input, 1);
     if (!initWorked) {
@@ -46,7 +46,7 @@ int stikInit(Stik* self, Atheneum *atheneum)
     }
     //self->functions.runFrame(self->input);
 
-    CLOG_INFO("stik init %d", initWorked);
+    CLOG_INFO("stik init %d", initWorked)
 
     return 0;
 }
